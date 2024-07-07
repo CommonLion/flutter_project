@@ -4,7 +4,12 @@
 import 'package:flutter/material.dart';
 
 class StartScreen extends StatelessWidget {
-  const StartScreen({super.key});
+  const StartScreen(this.startQuiz, {super.key}); 
+  //생성자의 매개변수로 startQuiz라는 함수를 넘겨 주는데. 
+
+  final void Function() startQuiz;
+  //버튼이 눌리면 해당 startQuiz하는 해당 위젯으로 스위치되는 느낌으로..
+  //startScreen 위젯에서
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +42,9 @@ class StartScreen extends StatelessWidget {
           const SizedBox(height: 30),
           OutlinedButton.icon(
               //child가 아닌 labe을 사용해야함..
-              onPressed: () {},
+              onPressed: () {
+                startQuiz();
+              },
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.white,
 
