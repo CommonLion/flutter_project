@@ -1,0 +1,13 @@
+import "package:adv_basicslibmodelsquiz_questions.dart";
+
+const questions = [
+  QuizQuestion("What atre the main building blocks of flutter UIs?", [
+    "Widgets",
+    "Components",
+    "Blocks",
+    "Fuctions ",
+  ]),
+];
+
+//해당 답목록에서 항상 첫번째 답이 정답으로 남아있도록 한다.
+//그리고 화면의 띄우기 전에 이 답들을 뒤섞는다. 
