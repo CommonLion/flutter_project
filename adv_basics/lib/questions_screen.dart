@@ -22,6 +22,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     //currentQuestionIndex = currentQuestionIndex +1;
     setState(() {
       currentQuestionIndex++;
+      //if (currentQuestionIndex == questions.length) currentQuestionIndex = 0;
     });
   }
 
@@ -50,7 +51,8 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                 ...currentQuestion.getShuffledAnswer().map((answer) {
                   return AnswerButton(
                     answerText: answer,
-                    onTap: () { //익명함수로 작동해야 함수가 실행된다. 
+                    onTap: () {
+                      //익명함수로 작동해야 함수가 실행된다.
                       answerQuestion(answer);
                     },
                   );

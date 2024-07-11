@@ -1,4 +1,3 @@
-import 'package:adv_basics/data/questions.dart';
 import 'package:flutter/material.dart';
 
 class AnswerButton extends StatelessWidget {

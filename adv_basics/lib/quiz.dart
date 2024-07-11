@@ -1,6 +1,6 @@
 import 'package:adv_basics/data/questions.dart';
-import 'package:adv_basics/question.dart';
-import 'package:adv_basics/result_screen.dart';
+import 'package:adv_basics/questions_screen.dart';
+import 'package:adv_basics/results_screen.dart';
 import 'package:adv_basics/start_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -19,7 +19,6 @@ class _QuizState extends State<Quiz> {
   //이제는 acticeScreen을 문자열로 해서 렌더링될때 실제 위젯으로 추론하게 만든다는거임
 
   List<String> selectedAnswers = []; // 선택된 답변들을 리스트로 모아두는 거임.
-
   var activeScreen = 'start-screen';
 
   /*
@@ -42,9 +41,10 @@ class _QuizState extends State<Quiz> {
 
     //답변이 전부 입력되면 시작화면으로 돌아간다.상태 설정.
     if (selectedAnswers.length == questions.length) {
+      print('equal ===============');
       setState(() {
-        selectedAnswers = [];
-        activeScreen = 'result-screen';
+        //selectedAnswers = [];
+        activeScreen = 'results-screen';
       });
     }
   }
@@ -54,6 +54,7 @@ class _QuizState extends State<Quiz> {
     Widget screenWidget = StartScreen(switchScreen);
 
     if (activeScreen == 'question-screen') {
+      print('dddddd');
       screenWidget = QuestionsScreen(
         onSelectAnswer: chooseAnswer,
       );
@@ -61,8 +62,9 @@ class _QuizState extends State<Quiz> {
 
     //활성화면으로
     if (activeScreen == 'results-screen') {
+      print('ssssss');
       screenWidget = ResultScreen(
-        chosenAnwers: selectedAnswers,
+        chosenAnswers: selectedAnswers,
       );
     }
 
@@ -79,11 +81,7 @@ class _QuizState extends State<Quiz> {
               end: Alignment.bottomRight,
             ),
           ),
-          child: activeScreen == 'start-screen'
-              ? StartScreen(switchScreen)
-              : QuestionsScreen(
-                  onSelectAnswer: chooseAnswer,
-                ),
+          child: screenWidget,
         ),
       ),
     );
