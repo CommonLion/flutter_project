@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:shopping_list/data/categories.dart';
 import 'package:shopping_list/models/category.dart';
+import 'package:shopping_list/models/grocery_item.dart';
 
 class NewItem extends StatefulWidget {
   const NewItem({super.key});
@@ -25,9 +26,15 @@ class _NewItemState extends State<NewItem> {
     if (_formKey.currentState!.validate()) {
       //유효성 검사가 통과해야 상태를 저장한다.
       _formKey.currentState!.save(); //현재 상태 저장
-      print(_enterdName);
-      print(_enteredQuantity);
-      print(_selectedCategory);
+      //새 식료품 아이템이 생성
+      Navigator.of(context).pop(
+        GroceryItem(
+          id: DateTime.now().toString(),
+          name: _enterdName,
+          quantity: _enteredQuantity,
+          category: _selectedCategory,
+        ),
+      );
     }
   }
 
