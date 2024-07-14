@@ -1,5 +1,12 @@
-//사용자의 입력 관리.
+//사용자의 입력 관리. 위젯
+
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+
+//해당 패키지에 해한 모든 내용이 http로 들어가야됨.
+import 'package:http/http.dart' as http;
+
 import 'package:shopping_list/data/categories.dart';
 import 'package:shopping_list/models/category.dart';
 import 'package:shopping_list/models/grocery_item.dart';
@@ -27,6 +34,30 @@ class _NewItemState extends State<NewItem> {
       //유효성 검사가 통과해야 상태를 저장한다.
       _formKey.currentState!.save(); //현재 상태 저장
       //새 식료품 아이템이 생성
+
+      //
+      /**
+       * 1. 파이어 베이스 DB 경로 
+       * 2. 추가하고 싶은 경로 
+      */
+      final url = Uri.https('flutter-prep-172ab-default-rtdb.firebaseio.com',
+          'shopping-list.json');
+      http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        //ID는 보낼필요 없음 firebase에서 고유 ID를 만들어 주니까.
+        body: json.encode(
+          {
+            'name': _enterdName,
+            'quantity': _enteredQuantity,
+            'category': _selectedCategory
+                .title, //나중에 실제 캎테고리 객체에 매핑하기 위해 이 title을 사용할 수 있다.
+          },
+        ),
+      );
+      /*이제 Navigator 안사용하고 위의 json으로 해당 데이터만 보낸다.
       Navigator.of(context).pop(
         GroceryItem(
           id: DateTime.now().toString(),
@@ -34,7 +65,7 @@ class _NewItemState extends State<NewItem> {
           quantity: _enteredQuantity,
           category: _selectedCategory,
         ),
-      );
+      );*/
     }
   }
 

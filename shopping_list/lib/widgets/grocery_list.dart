@@ -30,40 +30,62 @@ class _GroceryListState extends State<GroceryList> {
     if (newItem == null) {
       return;
     }
-
+ 
     setState(() {
       _groceryItems.add(newItem);
     });
   }
 
+  void _removeItem(GroceryItem item) {
+    setState(() {
+      _groceryItems.remove(item);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Your Groceries'),
-        actions: [
-          IconButton(
-              onPressed: () {
-                _addItem(context);
-              },
-              icon: const Icon(Icons.add)),
-        ],
-      ),
-
-      body: ListView.builder(
-          itemCount: _groceryItems.length,
-          itemBuilder: (ctx, index) => ListTile(
-                title: Text(_groceryItems[index].name),
-                leading: Container(
-                  width: 24,
-                  height: 24,
-                  color: _groceryItems[index].category.color,
-                ),
-                trailing: Text(
-                  _groceryItems[index].category.toString(),
-                ), //위젯으로 수량을 출력하고 인덱스로 식료품 항목에 접근하도록 한다.
-              )), //목록을 출력하고 싶다. 잠재적으로 길어 질수도 있고,
-      //현재 빌드되는 목록 항목의 index와, ctx값은 플터가 알아서 넘겨주고, ListTile위젯을 반한한다.
+    //기본화면인 거임. 아이템이 추가된거 없다면 나오는 화면
+    Widget content = const Center(
+      child: Text('No items added yet.'),
     );
+
+    //만약 식표품 데이터가 비어있지 않다면 다음과 같이 실행
+    if (_groceryItems.isNotEmpty) {
+      ListView.builder(
+        itemCount: _groceryItems.length,
+        //리스트를 밀면 없어지게 하는 기능 Dismissible
+        itemBuilder: (ctx, index) => Dismissible(
+          onDismissed: (direction) {
+            _removeItem(_groceryItems[index]);
+          }, //미는 방향을 정할 수 있음.
+          key: ValueKey(_groceryItems[index].id),
+          child: ListTile(
+            title: Text(_groceryItems[index].name),
+            leading: Container(
+              width: 24,
+              height: 24,
+              color: _groceryItems[index].category.color,
+            ),
+            trailing: Text(
+              _groceryItems[index].category.toString(),
+            ), //위젯으로 수량을 출력하고 인덱스로 식료품 항목에 접근하도록 한다.
+          ),
+        ),
+      );
+    }
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text('Your Groceries'),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  _addItem(context);
+                },
+                icon: const Icon(Icons.add)),
+          ],
+        ),
+        body: content //목록을 출력하고 싶다. 잠재적으로 길어 질수도 있고,
+        //현재 빌드되는 목록 항목의 index와, ctx값은 플터가 알아서 넘겨주고, ListTile위젯을 반한한다.
+        );
   }
 }
