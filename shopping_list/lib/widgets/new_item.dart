@@ -26,7 +26,7 @@ class _NewItemState extends State<NewItem> {
   var _enteredQuantity = 1; //초기 입력값은 1로 정의
   var _selectedCategory = categories[Categories.vegetables]!;
 
-  void _saveItem() {
+  void _saveItem() async {
     //현재 상태에 대한 유효성검사
     //폼위젯과 폼 전역키를 결합해 자동으로 유효성 검사 함수를 트리거할수 있다.
 
@@ -40,9 +40,11 @@ class _NewItemState extends State<NewItem> {
        * 1. 파이어 베이스 DB 경로 
        * 2. 추가하고 싶은 경로 
       */
-      final url = Uri.https('flutter-prep-172ab-default-rtdb.firebaseio.com',
-          'shopping-list.json');
-      http.post(
+      final url = Uri.https(
+        'flutter-prep-172ab-default-rtdb.firebaseio.com',
+        'shopping-list.json',
+      );
+      final response = await http.post(
         url,
         headers: {
           'Content-Type': 'application/json',
@@ -57,15 +59,21 @@ class _NewItemState extends State<NewItem> {
           },
         ),
       );
-      /*이제 Navigator 안사용하고 위의 json으로 해당 데이터만 보낸다.
+
+      final Map<String, dynamic> resData = json.decode(response.body);
+
+      //context가 마운트됐는지 안됐는지를 확인할 수 있음.
+      if (!context.mounted) {
+        return;
+      }
       Navigator.of(context).pop(
         GroceryItem(
-          id: DateTime.now().toString(),
+          id: resData['name'],
           name: _enterdName,
           quantity: _enteredQuantity,
           category: _selectedCategory,
         ),
-      );*/
+      );
     }
   }
 

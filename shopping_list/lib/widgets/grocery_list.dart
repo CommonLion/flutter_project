@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shopping_list/data/categories.dart';
 import 'package:shopping_list/models/grocery_item.dart';
 import 'package:shopping_list/widgets/new_item.dart';
+import 'package:http/http.dart' as http;
 
 class GroceryList extends StatefulWidget {
   //그냥 ㅜㄹ력만할거니 상태 비저장
@@ -13,9 +17,46 @@ class GroceryList extends StatefulWidget {
 class _GroceryListState extends State<GroceryList> {
   //위젯이 상태비저장 위젯이므로 context를 직접 받아야한다. 그래서 해당 메서드에 context작성
 
-  final List<GroceryItem> _groceryItems = []; //식료품 목록이다.
+  List<GroceryItem> _groceryItems = []; //식료품 목록이다.
 
-  void _addItem(BuildContext context) async {
+  //위젯이 완성되고 처음 렌더링 되는 거일뎨/ 현재의 상태를 다루고 있으니 initstate 메서드를 추가한다. 초기화 작업이 가능하게
+  @override
+  void initState() {
+    super.initState();
+    _loadItems();
+  }
+
+  void _loadItems() async {
+    final url = Uri.https(
+      'flutter-prep-172ab-default-rtdb.firebaseio.com',
+      'shopping-list.json',
+    );
+    final response = await http.get(url); // 응답 형식의 객체를 받은 것을 확인
+    final Map<String, dynamic> listData =
+        json.decode(response.body); //  디코드 한거임.
+    final List<GroceryItem> _loadItems = [];
+    for (final item in listData.entries) {
+      final category = categories.entries
+          .firstWhere(
+              (catItem) => catItem.value.title == item.value['category'])
+          .value;
+      //firebase에 카테고리 타이틀만 보내고 로컬 인메모리 데이터와 매치하려고한다.
+      //해당 항목의 범주 키와 아래 저장된 값과 같은 제목을 가진다? catItem은 이미 저장된 카테고리를 가리킨다.
+      _loadItems.add(
+        GroceryItem(
+          id: item.key,
+          name: item.value['name'],
+          quantity: item.value['quantity'],
+          category: category,
+        ),
+      );
+    }
+    setState(() {
+      _groceryItems = _loadItems; // 식료품들을 업데이트 하는 부분임.
+    });
+  }
+
+  void _addItem() async {
     //스크린 스택에 밀어낸 그 데이터
     //이 데이터는 newItem으로 데이터를
     final newItem = await Navigator.of(context).push<GroceryItem>(
@@ -24,13 +65,12 @@ class _GroceryListState extends State<GroceryList> {
       ),
     );
     //새로운 아이템 페이지로 변환
-    //빌더의 기능을 취한다. 이 경로의 컨텍트를 얻는다. // 간단히 새 아이템 위젯을 반환한다.
-
-    //새로운 아이템이면 목록에 아이템을 추가해야하낟.
+    //빌더의 기능을 취한다. 이 경로의 컨텍트를 얻는다. // 간단히 새 아이템 위젯을 반환한다
+    //_loadItems();
     if (newItem == null) {
       return;
     }
- 
+
     setState(() {
       _groceryItems.add(newItem);
     });
@@ -51,7 +91,7 @@ class _GroceryListState extends State<GroceryList> {
 
     //만약 식표품 데이터가 비어있지 않다면 다음과 같이 실행
     if (_groceryItems.isNotEmpty) {
-      ListView.builder(
+      content = ListView.builder(
         itemCount: _groceryItems.length,
         //리스트를 밀면 없어지게 하는 기능 Dismissible
         itemBuilder: (ctx, index) => Dismissible(
@@ -79,7 +119,7 @@ class _GroceryListState extends State<GroceryList> {
           actions: [
             IconButton(
                 onPressed: () {
-                  _addItem(context);
+                  _addItem();
                 },
                 icon: const Icon(Icons.add)),
           ],
