@@ -25,6 +25,7 @@ class _NewItemState extends State<NewItem> {
   var _enterdName = '';
   var _enteredQuantity = 1; //초기 입력값은 1로 정의
   var _selectedCategory = categories[Categories.vegetables]!;
+  var _isSending = false;
 
   void _saveItem() async {
     //현재 상태에 대한 유효성검사
@@ -34,7 +35,9 @@ class _NewItemState extends State<NewItem> {
       //유효성 검사가 통과해야 상태를 저장한다.
       _formKey.currentState!.save(); //현재 상태 저장
       //새 식료품 아이템이 생성
-
+      setState(() {
+        _isSending = true;
+      });
       //
       /**
        * 1. 파이어 베이스 DB 경로 
@@ -49,7 +52,7 @@ class _NewItemState extends State<NewItem> {
         headers: {
           'Content-Type': 'application/json',
         },
-        //ID는 보낼필요 없음 firebase에서 고유 ID를 만들어 주니까.
+        //ID는 보낼필요 없음 firebase에서 고유 ID를 만들어 주니까.a
         body: json.encode(
           {
             'name': _enterdName,
@@ -181,14 +184,21 @@ class _NewItemState extends State<NewItem> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () {
-                      _formKey.currentState!.reset();
-                    },
+                    onPressed: _isSending
+                        ? null
+                        : () {
+                            _formKey.currentState!.reset();
+                          },
                     child: const Text('Reset'),
                   ),
                   ElevatedButton(
-                    onPressed: _saveItem,
-                    child: const Text('Add Item'),
+                    onPressed: _isSending ? null : _saveItem,
+                    child: _isSending
+                        ? const SizedBox(
+                            height: 16,
+                            width: 16,
+                            child: CircularProgressIndicator())
+                        : const Text('Add Item'),
                   ),
                 ],
               )
