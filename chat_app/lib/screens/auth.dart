@@ -49,7 +49,6 @@ class _AuthScreenState extends State<AuthScreen> {
         ),
       ); 
     }
-
     //print(_enteredEmail);
     //print(_enteredPassword);
   }

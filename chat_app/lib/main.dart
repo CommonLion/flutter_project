@@ -1,4 +1,5 @@
 import 'package:chat_app/screens/chat.dart';
+import 'package:chat_app/screens/splash.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -29,8 +30,13 @@ class App extends StatelessWidget {
       home: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (ctx, snapshot) {
+          //FireBase가 토큰을 로딩하지 않았거나 토큰이 아직 있는지 확인하지 않았다면 로딩화면을 보여준다.
+          if(snapshot.connectionState == ConnectionState.waiting){
+            return const SplashScreen();
+          }
+
           if(snapshot.hasData){
-            return ChatScreen();
+            return const ChatScreen();
           }
 
           return const AuthScreen();
