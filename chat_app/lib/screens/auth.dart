@@ -1,3 +1,4 @@
+import 'package:chat_app/widgets/user_image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -47,7 +48,7 @@ class _AuthScreenState extends State<AuthScreen> {
         SnackBar(
           content: Text(error.message ?? 'Authentication failed.'),
         ),
-      ); 
+      );
     }
     //print(_enteredEmail);
     //print(_enteredPassword);
@@ -83,6 +84,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min, //공간을 최재한 차지하게
                         children: [
+                          if (!_isLogin) UserImagePicker(), //로그인일때만 작동
                           TextFormField(
                             decoration: const InputDecoration(
                                 labelText: 'Email Address'),
