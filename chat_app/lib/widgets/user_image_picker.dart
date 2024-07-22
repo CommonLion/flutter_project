@@ -5,7 +5,12 @@ import 'package:image_picker/image_picker.dart';
 
 //업로드 전에 이미지를 고르고 미리 보기를 보여주는 위젯. 상태 관리 해야함.
 class UserImagePicker extends StatefulWidget {
-  const UserImagePicker({super.key});
+  const UserImagePicker({
+    super.key,
+    required this.onPickImage,
+  });
+
+  final void Function(File pickedImage) onPickImage;
 
   @override
   State<UserImagePicker> createState() {
@@ -29,6 +34,8 @@ class _UserImagePickerState extends State<UserImagePicker> {
     setState(() {
       _pickedImageFile = File(pickedImage.path);
     });
+
+    widget.onPickImage(_pickedImageFile!); //위젯을 업데이트 하는 부분?
   }
 
   @override

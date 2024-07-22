@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:chat_app/widgets/user_image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -18,12 +21,13 @@ class _AuthScreenState extends State<AuthScreen> {
   var _isLogin = true;
   var _enteredEmail = '';
   var _enteredPassword = '';
+  File? _selectedImage;
 
   void _submit() async {
     //valid확인하고 제출 //formKey를 따라서 접근할 수 있는 거임.
     final isValid = _form.currentState!.validate(); //validate호출 //null이 아닌걸 !
 
-    if (!isValid) {
+    if (!isValid || !_isLogin && _selectedImage == null) {
       return;
     }
     _form.currentState!.save();
@@ -37,6 +41,17 @@ class _AuthScreenState extends State<AuthScreen> {
       } else {
         final userCredentials = await _firebase.createUserWithEmailAndPassword(
             email: _enteredEmail, password: _enteredPassword);
+
+        //firebase에 이미지 업로드
+        final storageRef = FirebaseStorage.instance
+            .ref()
+            .child('user_images')
+            .child(userCredentials.user!.uid + '.jpg');
+        //.putFile(_selectedImage!);
+
+        await storageRef.putFile(_selectedImage!);
+        final imageUrl = await storageRef.getDownloadURL();
+        print(imageUrl);
       }
     } on FirebaseAuthException catch (error) {
       if (error.code == 'email-already-in-use') {
@@ -84,7 +99,10 @@ class _AuthScreenState extends State<AuthScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min, //공간을 최재한 차지하게
                         children: [
-                          if (!_isLogin) UserImagePicker(), //로그인일때만 작동
+                          if (!_isLogin)
+                            UserImagePicker(onPickImage: (pickedImage) {
+                              _selectedImage = pickedImage;
+                            }), //로그인일때만 작동
                           TextFormField(
                             decoration: const InputDecoration(
                                 labelText: 'Email Address'),
