@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:chat_app/widgets/user_image_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -22,6 +23,7 @@ class _AuthScreenState extends State<AuthScreen> {
   var _enteredEmail = '';
   var _enteredPassword = '';
   File? _selectedImage;
+  var _isAuthenticating = false;
 
   void _submit() async {
     //valid확인하고 제출 //formKey를 따라서 접근할 수 있는 거임.
@@ -33,6 +35,10 @@ class _AuthScreenState extends State<AuthScreen> {
     _form.currentState!.save();
 
     try {
+      setState(() {
+        _isAuthenticating = true; //로그인중 스피닝 표시
+      });
+
       //핵심 로그인 로직
       if (_isLogin) {
         //log uesrs in
@@ -51,7 +57,17 @@ class _AuthScreenState extends State<AuthScreen> {
 
         await storageRef.putFile(_selectedImage!);
         final imageUrl = await storageRef.getDownloadURL();
-        print(imageUrl);
+
+
+        //firestore에 데이터 저장.
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredentials.user!.uid)
+            .set({
+          'username': _enteredEmail,
+          'email': _enteredEmail,
+          'image_url': imageUrl,
+        });
       }
     } on FirebaseAuthException catch (error) {
       if (error.code == 'email-already-in-use') {
@@ -64,6 +80,9 @@ class _AuthScreenState extends State<AuthScreen> {
           content: Text(error.message ?? 'Authentication failed.'),
         ),
       );
+      setState(() {
+        _isAuthenticating = false; //로그인 실패시
+      });
     }
     //print(_enteredEmail);
     //print(_enteredPassword);
@@ -135,15 +154,18 @@ class _AuthScreenState extends State<AuthScreen> {
                             },
                           ),
                           const SizedBox(height: 12),
-                          ElevatedButton(
-                            onPressed: _submit,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .primaryContainer,
+                          if (_isAuthenticating)
+                            const CircularProgressIndicator(),
+                          if (!_isAuthenticating)
+                            ElevatedButton(
+                              onPressed: _submit,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context)
+                                    .colorScheme
+                                    .primaryContainer,
+                              ),
+                              child: Text(_isLogin ? 'Login' : 'Signup'),
                             ),
-                            child: Text(_isLogin ? 'Login' : 'Signup'),
-                          ),
                           TextButton(
                             onPressed: () {
                               setState(() {
